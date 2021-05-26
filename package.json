@@ -3,6 +3,17 @@
   "private": true,
   "version": "1.0.0",
   "description": "Redirects requests at `data.crow.nl` to a designated resolver. Written for Azure Functions.",
+  "homepage": "https://github.com/Stichting-CROW/data.crow.nl",
+  "bugs": {
+    "url": "https://github.com/Stichting-CROW/data.crow.nl/issues"
+  },
+  "license": "MIT",
+  "contributors": [
+    {
+      "name": "Redmer Kronemeijer",
+      "email": "redmer.kronemeijer@crow.nl"
+    }
+  ],
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",

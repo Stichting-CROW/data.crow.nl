@@ -1,0 +1,43 @@
+{
+    "title": "JSON schema for redirects.json",
+    "description": "The redirect.json file describes 302 FOUND redirections for linked data-purposes.",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "$schema": {
+            "type": "string"
+        },
+        "redirects": {
+            "type": "array",
+            "description": "When multiple match, those with filters are preferred; if multiple matches remain, the first is preferred.",
+            "title": "Redirection candidates.",
+            "items": {
+                "properties": {
+                    "path": {
+                        "title": "Pathname, i.e. URL-part after the domain .",
+                        "description": "Begins with first `/`. Matches as a regex.",
+                        "type": "string",
+                        "format": "regex"
+                    },
+                    "location": {
+                        "title": "Redirection target.",
+                        "description": "Some variables ($ACCEPT_LANGUAGE, $REQUEST_URI_ESCAPED and regex groups $1..$9) are substituted.",
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "accept": {
+                        "title": "Accept-header filters.",
+                        "description": "Multiple filters are combined using OR.",
+                        "type": "array",
+                        "items": {
+                            "title": "Accept header content.",
+                            "description": "Matches as regex.",
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
