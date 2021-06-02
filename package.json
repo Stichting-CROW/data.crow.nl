@@ -1,5 +1,5 @@
 {
-  "name": "data.crow.nl",
+  "name": "data-crow-nl",
   "private": true,
   "version": "1.0.0",
   "description": "Redirects requests at `data.crow.nl` to a designated resolver. Written for Azure Functions.",
