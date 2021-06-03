@@ -10,14 +10,14 @@ function* range(start: number, end: number): Generator<number> {
 }
 
 /** Corresponds with entries in data/redirects-schema.json */
-export interface RedirectCandidate {
+interface RedirectCandidate {
   path: string;
   location: string;
   accept?: string[];
 }
 
 /** Request parameters for underlying functions. */
-export interface SafeRequest {
+interface SafeRequest {
   urlPath: string;
   urlEscaped: string;
   acceptLanguage1: string;
@@ -42,7 +42,7 @@ const defaultResponse: AzureHttpResponse = {
 };
 
 /** Substitute redirection location variables $1..$9 */
-export function substituteNumberedVariables(
+function substituteNumberedVariables(
   location: string,
   request: SafeRequest,
   targetPath: string
@@ -62,7 +62,7 @@ export function substituteNumberedVariables(
  * - $ACCEPT_LANGUAGE     First preferred value of request header Accept-Language
  * - $REQUEST_URI_ESCAPED URL-encoded request URL
  */
-export function substituteNamedVariables(
+function substituteNamedVariables(
   location: string,
   request: SafeRequest
 ): string {
@@ -72,7 +72,7 @@ export function substituteNamedVariables(
 }
 
 /** Readable report for end users. */
-export function reportError(
+function reportError(
   targetCount: number,
   request: SafeRequest
 ): AzureHttpResponse {
@@ -105,7 +105,7 @@ export function reportError(
 }
 
 /** Gather matching targets. */
-export function preferredTargets(request: SafeRequest): RedirectCandidate[] {
+function preferredTargets(request: SafeRequest): RedirectCandidate[] {
   const dataJSON: { redirects: RedirectCandidate[] } = JSON.parse(
     fs.readFileSync("data/redirects.json")
   );
@@ -145,7 +145,7 @@ export function preferredTargets(request: SafeRequest): RedirectCandidate[] {
 }
 
 /** Find redirection target */
-export function redirectLocation(request: SafeRequest): AzureHttpResponse {
+function redirectLocation(request: SafeRequest): AzureHttpResponse {
   const targets = preferredTargets(request);
 
   if (targets.length !== 1) {
@@ -174,7 +174,7 @@ export function redirectLocation(request: SafeRequest): AzureHttpResponse {
 }
 
 /** The Azure Function responder. */
-const httpTrigger: AzureFunction = async function (
+const run: AzureFunction = async function (
   context: Context,
   req: HttpRequest
 ): Promise<void> {
@@ -206,4 +206,4 @@ const httpTrigger: AzureFunction = async function (
   };
 };
 
-export default httpTrigger;
+export default run;
