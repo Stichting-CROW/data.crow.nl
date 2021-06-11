@@ -180,9 +180,10 @@ const run: AzureFunction = async function (
 
   const lang = languages(req.headers["accept-language"])[0]?.split("-")[0];
   const acpt = mediaTypes(req.headers["accept"]);
+  const pathname = new URL(req.url).pathname
   const request: SafeRequest = {
-    urlPath: new URL(req.url).pathname,
-    urlEscaped: encodeURIComponent(req["originalUrl"]).replace('http%3A', 'https%3A'),
+    urlPath: pathname,
+    urlEscaped: encodeURIComponent('https://data.crow.nl' + pathname),
     acceptLanguage1: lang,
     acceptMediaTypes: acpt,
   };
