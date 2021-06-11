@@ -182,7 +182,7 @@ const run: AzureFunction = async function (
   const acpt = mediaTypes(req.headers["accept"]);
   const request: SafeRequest = {
     urlPath: new URL(req.url).pathname,
-    urlEscaped: encodeURIComponent(req["originalUrl"]),
+    urlEscaped: encodeURIComponent(req["originalUrl"]).replace('http%3A', 'https%3A'),
     acceptLanguage1: lang,
     acceptMediaTypes: acpt,
   };
