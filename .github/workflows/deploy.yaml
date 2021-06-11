@@ -1,7 +1,9 @@
 name: Deploy as Azure Function
 
 on:
-  [push]
+  push:
+    branches:
+      - main
 
 # CONFIGURATION
 # For help, go to https://github.com/Azure/Actions
@@ -15,6 +17,8 @@ env:
   AZURE_FUNCTIONAPP_NAME: 'data-crow-nl'   # set this to your application's name
   AZURE_FUNCTIONAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
   NODE_VERSION: '10.x'                     # set this to the node version to use (supports 8.x, 10.x, 12.x)
+  SCM_DO_BUILD_DURING_DEPLOYMENT: true
+  ENABLE_ORYX_BUILD: true
 
 jobs:
   build-and-deploy:
@@ -44,5 +48,3 @@ jobs:
         app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
         package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
         publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
-        scm-do-build-during-deployment: true
-        enable-oryx-build: true

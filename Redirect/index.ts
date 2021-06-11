@@ -1,6 +1,6 @@
-import { AzureFunction, Context, HttpRequest } from "@azure/functions";
-import { mediaTypes, languages } from "@hapi/accept";
-const fs = require("fs");
+import { AzureFunction, Context, Cookie, HttpRequest } from "@azure/functions";
+import { languages, mediaTypes } from "@hapi/accept";
+import * as fs from "fs/promises";
 
 /** Generates a range from (start-end] */
 function* range(start: number, end: number): Generator<number> {
@@ -22,27 +22,27 @@ interface SafeRequest {
   urlEscaped: string;
   acceptLanguage1: string;
   acceptMediaTypes: string[];
-  isInDebugMode: boolean;
 }
 
+/** Recognized keys for Context.res */
 interface AzureHttpResponse {
+  /** HTTP status code */
   status?: number;
-  body?: string;
+  /** The body of the response */
+  body?: Object;
+  /** Indicates that formatting is skipped */
   isRaw?: boolean;
+  /** Response headers */
   headers?: {
     location?: string;
     "content-type"?: string;
   };
+  /** Cookie objects that are set in the response */
+  cookies?: Cookie[];
 }
 
-const defaultResponse: AzureHttpResponse = {
-  status: 404,
-  body: `<p>Not found.</p>`,
-  isRaw: true,
-};
-
 /** Substitute redirection location variables $1..$9 */
-function substituteNumberedVariables(
+function substituteNumberedRegexGroupVariables(
   location: string,
   request: SafeRequest,
   targetPath: string
@@ -61,6 +61,8 @@ function substituteNumberedVariables(
  *
  * - $ACCEPT_LANGUAGE     First preferred value of request header Accept-Language
  * - $REQUEST_URI_ESCAPED URL-encoded request URL
+ * @param location Redirect location string with substitutables
+ * @param request Context information as SafeRequest
  */
 function substituteNamedVariables(
   location: string,
@@ -72,31 +74,22 @@ function substituteNamedVariables(
 }
 
 /** Readable report for end users. */
-function reportError(
-  targetCount: number,
-  request: SafeRequest
-): AzureHttpResponse {
-  let status: number;
-  let body: string;
-  let issueType: string;
-
-  if (targetCount === 0) {
-    status = 404;
-    body = `<p>Not found.</p>`;
-    issueType = "Cannot resolve ";
-  }
-
-  const packageJSON = JSON.parse(fs.readFileSync("package.json"));
+async function zeroResults(request: SafeRequest): Promise<AzureHttpResponse> {
+  const packageJSON = JSON.parse(
+    await fs.readFile("package.json", { encoding: "utf-8" })
+  );
 
   const newIssueURL =
     packageJSON.bugs.url +
     "/new?labels=bug&title=" +
-    encodeURIComponent(issueType) +
+    encodeURIComponent("Cannot resolve ") +
     request.urlEscaped;
 
-  throw {
-    status: status,
-    body: `${body}<p><a href="${newIssueURL}">Submit an issue</a> if you think you need to notify us. Thanks!</p>`,
+  return {
+    status: 404,
+    body: `<title>Not Found</title>
+           <p>Not found.</p>
+           <p><a href="${newIssueURL}">Submit an issue</a> if you think you need to notify us. Thanks!</p>`,
     isRaw: true,
     headers: {
       "content-type": "text/html; charset=utf-8",
@@ -105,9 +98,11 @@ function reportError(
 }
 
 /** Gather matching targets. */
-function preferredTargets(request: SafeRequest): RedirectCandidate[] {
+async function preferredTargets(
+  request: SafeRequest
+): Promise<RedirectCandidate[]> {
   const dataJSON: { redirects: RedirectCandidate[] } = JSON.parse(
-    fs.readFileSync("data/redirects.json")
+    await fs.readFile("data/redirects.json", { encoding: "utf-8" })
   );
 
   const path = request.urlPath;
@@ -145,24 +140,27 @@ function preferredTargets(request: SafeRequest): RedirectCandidate[] {
 }
 
 /** Find redirection target */
-function redirectLocation(request: SafeRequest): AzureHttpResponse {
-  const targets = preferredTargets(request);
+async function redirectLocation(
+  request: SafeRequest
+): Promise<AzureHttpResponse> {
+  const targets = await preferredTargets(request);
 
   if (targets.length !== 1) {
     console.warn(`Found ${targets.length} matches for "${request.urlPath}".`);
   }
 
   if (targets.length === 0) {
-    return reportError(targets.length, request);
+    return await zeroResults(request);
   }
 
   let location = targets[0].location;
-  location = substituteNumberedVariables(location, request, targets[0].path);
+  location = substituteNumberedRegexGroupVariables(location, request, targets[0].path);
   location = substituteNamedVariables(location, request);
 
   const result: AzureHttpResponse = {
     status: 302,
-    body: `<p>Redirecting to <a href="${location}">${location}</a>...</p>`,
+    body: `<title>Redirecting…</title>
+           <p>Redirecting to <a href="${location}">${location}</a>...</p>`,
     isRaw: true,
     headers: {
       location: location,
@@ -180,28 +178,28 @@ const run: AzureFunction = async function (
 ): Promise<void> {
   let response: AzureHttpResponse = {};
 
-  try {
-    const lang = languages(req.headers["accept-language"])[0]?.split("-")[0];
+  const lang = languages(req.headers["accept-language"])[0]?.split("-")[0];
+  const acpt = mediaTypes(req.headers["accept"]);
+  const request: SafeRequest = {
+    urlPath: new URL(req.url).pathname,
+    urlEscaped: encodeURIComponent(req["originalUrl"]),
+    acceptLanguage1: lang,
+    acceptMediaTypes: acpt,
+  };
 
-    const request: SafeRequest = {
-      urlPath: new URL(req.url).pathname,
-      urlEscaped: encodeURIComponent(req.url),
-      acceptLanguage1: lang,
-      acceptMediaTypes: mediaTypes(req.headers["accept"]),
-      isInDebugMode: !!req.query["debug"],
-    };
+  console.info(JSON.stringify(acpt));
 
-    response = redirectLocation(request);
+  response = await redirectLocation(request);
 
-    if (request.isInDebugMode) {
-      delete response.headers.location;
-    }
-  } catch (e) {
-    response = e;
+  if (!!req.query["debug"]) {
+    delete response.headers.location;
   }
 
   context.res = {
-    ...defaultResponse,
+    status: 404,
+    body: `<title>Not Found</title>
+           <p>Not found.</p>`,
+    isRaw: true,
     ...response,
   };
 };
