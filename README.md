@@ -11,12 +11,13 @@ Op de gevonden bestemming wordt de daadwerkelijke data gehost.
 ## New redirects / Nieuwe doorverwijzingen
 
 New redirects are added in [redirects.json].
-If you edit with a JSON-schema compatible editor (e.g. Visual Studio Code), you get autocomplete suggestions.
+If you edit with a JSON-schema compatible editor (e.g. Visual Studio Code or [GitHub.dev]), you get autocomplete suggestions.
 
 Voeg nieuwe doorverwijzingen toe aan [redirects.json].
-Als je bewerkt met een programma dat JSON-schema’s begrijpt (bijv. Visual Studio Code), krijg je automatisch invulsuggesties.
+Als je bewerkt met een programma dat JSON-schema’s begrijpt (bijv. Visual Studio Code of [GitHub.dev]), krijg je automatisch invulsuggesties.
 
 [redirects.json]: data/redirects.json
+[GitHub.dev]: https://github.dev/Stichting-CROW/data.crow.nl/blob/main/data/redirects.json
 
 ## Deployment / Uitrol
 
