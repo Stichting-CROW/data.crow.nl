@@ -17,17 +17,17 @@ Voeg nieuwe doorverwijzingen toe aan [redirects.json].
 Als je bewerkt met een programma dat JSON-schema’s begrijpt (bijv. Visual Studio Code of [GitHub.dev]), krijg je automatisch invulsuggesties.
 
 [redirects.json]: data/redirects.json
-[GitHub.dev]: https://github.dev/Stichting-CROW/data.crow.nl/blob/main/data/redirects.json
+[github.dev]: https://github.dev/Stichting-CROW/data.crow.nl/blob/main/data/redirects.json
 
 ## Deployment / Uitrol
 
-Commit your changes in a branch and open a pull request. 
+Commit your changes in a branch and open a pull request.
 After approval and merging, a [GitHub Action] will ensure deployment of your changes.
 
-*Commit* je wijzingen in een *branch* en open een *pull request*.
+_Commit_ je wijzingen in een _branch_ en open een _pull request_.
 Na goedkeuring en samenvoeging zorgt een [GitHub Action] dat de wijzingen uitgerold worden.
 
-[GitHub Action]: .github/workflows/deploy.yaml
+[github action]: .github/workflows/deploy.yaml
 
 ## Issues and Pull Request
 

@@ -1,31 +1,27 @@
 {
-    "$schema": "./redirects-schema.json",
-    "redirects": [
-        {
-            "path": "/cdoc/def/(.+)$",
-            "location": "https://docs.crow.nl/Contracteisen/DocumentSchema_v3.2.3.ttl",
-            "accept": [
-                "text/turtle"
-            ]
-        },
-        {
-            "path": "/cspec/def/(.+)$",
-            "location": "https://docs.crow.nl/Contracteisen/SpecificatieSchema_v3.2.3.ttl",
-            "accept": [
-                "text/turtle"
-            ]
-        },
-        {
-            "path": "/cdoc/def/(.+)$",
-            "location": "https://docs.crow.nl/Contracteisen/#$1"
-        },
-        {
-            "path": "/cspec/def/(.+)$",
-            "location": "https://docs.crow.nl/Contracteisen/#$1"
-        },
-        {
-            "path": "/([a-zA-Z0-9-_]+?)/term/.+$",
-            "location": "https://begrippen.crow.nl/$1/$ACCEPT_LANGUAGE/page/?uri=$REQUEST_URI_ESCAPED"
-        }
-    ]
+  "$schema": "./redirects-schema.json",
+  "redirects": [
+    {
+      "path": "/cdoc/def/(.+)$",
+      "location": "https://docs.crow.nl/Contracteisen/DocumentSchema_v3.2.3.ttl",
+      "accept": ["text/turtle"]
+    },
+    {
+      "path": "/cspec/def/(.+)$",
+      "location": "https://docs.crow.nl/Contracteisen/SpecificatieSchema_v3.2.3.ttl",
+      "accept": ["text/turtle"]
+    },
+    {
+      "path": "/cdoc/def/(.+)$",
+      "location": "https://docs.crow.nl/Contracteisen/#$1"
+    },
+    {
+      "path": "/cspec/def/(.+)$",
+      "location": "https://docs.crow.nl/Contracteisen/#$1"
+    },
+    {
+      "path": "/([a-zA-Z0-9-_]+?)/term/.+$",
+      "location": "https://begrippen.crow.nl/$1/$ACCEPT_LANGUAGE/page/?uri=$REQUEST_URI_ESCAPED"
+    }
+  ]
 }
