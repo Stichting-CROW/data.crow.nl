@@ -17,8 +17,6 @@ env:
   AZURE_FUNCTIONAPP_NAME: "data-crow-nl" # set this to your application's name
   AZURE_FUNCTIONAPP_PACKAGE_PATH: "." # set this to the path to your web app project, defaults to the repository root
   NODE_VERSION: "10.x" # set this to the node version to use (supports 8.x, 10.x, 12.x)
-  SCM_DO_BUILD_DURING_DEPLOYMENT: true
-  ENABLE_ORYX_BUILD: true
 
 jobs:
   build-and-deploy:
@@ -36,13 +34,13 @@ jobs:
         shell: bash
         run: |
           pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
-          npm install
+          npm ci
           npm run build --if-present
           npm run test --if-present
           popd
 
       - name: "Run Azure Functions Action"
-        uses: Azure/functions-action@v1.4.0
+        uses: Azure/functions-action@v1
         id: fa
         with:
           app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
