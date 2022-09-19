@@ -2,7 +2,10 @@
 
 This package is the linked data resolver for data.crow.nl.
 Built on Azure Functions, it matches regex request URLs with target destinations where the actual data is stored.
-It redirects using HTTP `302 FOUND`.
+It redirects using HTTP `307 TEMPORARY REDIRECT`.
+This is not `302 FOUND`, as that may [change HTTP method][method].
+
+[method]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Redirections#temporary_redirections
 
 Dit pakket is de linkeddatadoorverwijzer voor data.crow.nl.
 Gebouwd met Azure Functions, zoekt het de juiste doorverwijzing van HTTP-verzoeken naar de server.

@@ -162,7 +162,7 @@ async function redirectLocation(
   location = substituteNamedVariables(location, request);
 
   const result: AzureHttpResponse = {
-    status: 302,
+    status: 307,
     body: `<title>Redirecting…</title>
            <p>Redirecting to <a href="${location}">${location}</a>...</p>`,
     isRaw: true,
@@ -203,6 +203,7 @@ const run: AzureFunction = async function (
   context.res = {
     status: 404,
     body: `<title>Not Found</title>
+           <style>body { font-family: MuseoSans, Museo, "Museo Sans", sans-serif; } </style>
            <p>Not found.</p>`,
     isRaw: true,
     ...response,
