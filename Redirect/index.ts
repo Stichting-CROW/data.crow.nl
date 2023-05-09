@@ -87,9 +87,28 @@ async function zeroResults(request: SafeRequest): Promise<AzureHttpResponse> {
 
   return {
     status: 404,
-    body: `<title>Not Found</title>
-           <p>Not found.</p>
-           <p><a href="${newIssueURL}">Submit an issue</a> if you think you need to notify us. Thanks!</p>`,
+    body: `<head>
+        <link rel="stylesheet" href="https://docs.crow.nl/respec-design/base.css" />
+        <link rel="stylesheet" href="https://docs.crow.nl/respec-design/crow-base.css" />
+        <link
+          rel="stylesheet"
+          media="(prefers-color-scheme: dark)"
+          href="https://docs.crow.nl/respec-design/crow-dark.css"
+        />
+        <link
+          rel="shortcut icon"
+          href="https://docs.crow.nl/respec-design/logos/crow.ico"
+          type="image/x-icon"
+        />
+      </head>
+      <body>
+        <title>Redirection not possible</title>
+        <p>404: Path not found.</p>
+        <p>
+          <a href="${newIssueURL}">Submit an issue</a> if you think you need to
+          notify us. Thanks!
+        </p>
+      </body>`,
     isRaw: true,
     headers: {
       "content-type": "text/html; charset=utf-8",
