@@ -101,7 +101,7 @@
     },
     {
       "path": "/([a-zA-Z0-9-_]+?)/term/.+$",
-      "location": "https://begrippen.crow.nl/$1/$ACCEPT_LANGUAGE/page/?uri=$REQUEST_URI_ESCAPED"
+      "location": "https://begrippen.crow.nl/$1/nl/page/?uri=$REQUEST_URI_ESCAPED"
     },
     {
       "path": "(.*)$",
