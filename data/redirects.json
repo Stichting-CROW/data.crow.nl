@@ -24,7 +24,7 @@
       "location": "https://docs.crow.nl/Contracteisen/#$1"
     },
     {
-      "path": "/imbor/def/(.+)$",
+      "path": "/imbor(-ref)?/(id|doc|def)/(.+)$",
       "location": "https://docs.crow.nl/onto-verkenner/imbor/#/view?uri=$REQUEST_URI_ESCAPED",
       "accept": ["text/html"]
     },
