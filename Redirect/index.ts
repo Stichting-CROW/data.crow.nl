@@ -22,6 +22,8 @@ interface SafeRequest {
   urlEscaped: string;
   acceptLanguage1: string;
   acceptMediaTypes: string[];
+  webhookTarget?: string;
+  body?: any;
 }
 
 /** Recognized keys for Context.res */
@@ -71,6 +73,58 @@ function substituteNamedVariables(
   return location
     .replace("$ACCEPT_LANGUAGE", request.acceptLanguage1 ?? "nl")
     .replace("$REQUEST_URI_ESCAPED", request.urlEscaped);
+}
+
+async function teamsWebhook(request: SafeRequest): Promise<AzureHttpResponse> {
+  const payload = {
+    path: request.urlPath,
+    webhookTarget: request.webhookTarget,
+    body: request.body,
+  };
+  const [account, dataset] = ["a", "b"];
+  const template = `{
+    "type":"message",
+    "attachments":[
+       {
+          "contentType":"application/vnd.microsoft.card.adaptive",
+          "contentUrl":null,
+          "content":{
+            "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+            "type": "AdaptiveCard",
+            "version": "1.2",
+            "speak": "Dataset ${account}/${dataset} was updated",
+            "body": [
+              {
+                "type": "TextBlock",
+                "text": "Dataset \`${account}/${dataset}\` was updated",
+                "size": "large",
+                "weight": "bolder",
+                "wrap": true,
+                "style": "heading"
+              },
+              {
+                "type": "TextBlock",
+                "text": "\`\`\`json\n${JSON.stringify(
+                  payload,
+                  undefined,
+                  2
+                )}\n\`\`\`"
+              }
+            ]
+          }
+       }
+    ]
+ }`;
+
+  await fetch(payload.webhookTarget, {
+    body: template,
+    headers: { "Content-Type": "application/json" },
+  });
+
+  return {
+    status: 200,
+    isRaw: true,
+  };
 }
 
 /** Readable report for end users. */
@@ -209,12 +263,17 @@ const run: AzureFunction = async function (
     urlEscaped: encodeURIComponent("https://data.crow.nl" + pathname),
     acceptLanguage1: lang,
     acceptMediaTypes: acpt,
+    webhookTarget: req.query["webhooktarget"],
+    body: req.body,
   };
 
   console.info(JSON.stringify(acpt));
 
-  response = await redirectLocation(request);
-
+  if (!!req.query["webhooktarget"]) {
+    response = await teamsWebhook(request);
+  } else {
+    response = await redirectLocation(request);
+  }
   if (!!req.query["debug"]) {
     delete response.headers.location;
   }
