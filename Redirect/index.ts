@@ -126,19 +126,21 @@ async function teamsWebhook(request: SafeRequest): Promise<AzureHttpResponse> {
     ]
  }`;
 
-  // fetch(payload.webhookTarget, {
-  //   body: template,
-  //   headers: {
-  //     "Content-Type": "application/json",
-  //     "User-Agent": "data.crow.nl",
-  //   },
-  //   method: "POST",
-  // });
+  await fetch(payload.webhookTarget, {
+    body: template,
+    headers: {
+      "Content-Type": "application/json",
+      "User-Agent": "data.crow.nl",
+    },
+    method: "POST",
+  });
 
   return {
     status: 200,
     isRaw: true,
-    body: `{ "message": "Sent template to ${payload.webhookTarget}" }`,
+    body: `{ "message": "Sent template to ${
+      payload.webhookTarget
+    }", "payload": ${JSON.stringify(payload, undefined, 2)} }`,
     headers: {
       "content-type": "application/json",
     },
@@ -285,7 +287,7 @@ const run: AzureFunction = async function (
     acceptLanguage1: lang,
     acceptMediaTypes: mediaTypes(req.headers["accept"]),
     webhookTarget: webhook,
-    body: req.rawBody || req.body,
+    body: await req.text(),
   };
 
   if (!!webhook && req.method == "POST")
