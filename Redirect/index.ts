@@ -23,7 +23,7 @@ interface SafeRequest {
   acceptLanguage1: string;
   acceptMediaTypes: string[];
   webhookTarget?: string;
-  body?: any;
+  body?: string;
 }
 
 /** Recognized keys for Context.res */
@@ -118,12 +118,20 @@ async function teamsWebhook(request: SafeRequest): Promise<AzureHttpResponse> {
 
   await fetch(payload.webhookTarget, {
     body: template,
-    headers: { "Content-Type": "application/json", method: "POST" },
+    headers: {
+      "Content-Type": "application/json",
+      "User-Agent": "data.crow.nl",
+    },
+    method: "POST",
   });
 
   return {
     status: 200,
     isRaw: true,
+    body: `Sent template to ${payload.webhookTarget}`,
+    headers: {
+      "content-type": "text/plain; charset=utf-8",
+    },
   };
 }
 
@@ -264,12 +272,12 @@ const run: AzureFunction = async function (
     acceptLanguage1: lang,
     acceptMediaTypes: acpt,
     webhookTarget: req.query["webhooktarget"],
-    body: req.body,
+    body: req.rawBody,
   };
 
   console.info(JSON.stringify(acpt));
 
-  if (!!req.query["webhooktarget"]) {
+  if (!!request.webhookTarget) {
     response = await teamsWebhook(request);
   } else {
     response = await redirectLocation(request);
