@@ -78,7 +78,7 @@ function substituteNamedVariables(
 async function teamsWebhook(request: SafeRequest): Promise<AzureHttpResponse> {
   const payload = {
     path: request.urlPath,
-    webhookTarget: request.webhookTarget,
+    webhookTarget: decodeURIComponent(request.webhookTarget),
     body: request.body,
   };
   const [account, dataset] = ["a", "b"];
