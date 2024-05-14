@@ -23,7 +23,7 @@
     "util:format": "npx prettier --parser typescript --write $(find ./Redirect -name '*.ts')"
   },
   "dependencies": {
-    "@hapi/accept": "^5.0.2"
+    "@hapi/accept": "^6.0.3"
   },
   "devDependencies": {
     "@azure/functions": "^4.4.0",

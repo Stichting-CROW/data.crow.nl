@@ -1,4 +1,4 @@
-import { AzureFunction, Context, Cookie, HttpRequest } from "@azure/functions";
+import { Cookie, HttpRequest } from "@azure/functions";
 import { languages, mediaTypes } from "@hapi/accept";
 import * as fs from "fs/promises";
 
@@ -269,8 +269,8 @@ async function redirectLocation(
 }
 
 /** The Azure Function responder. */
-const run: AzureFunction = async function (
-  context: Context,
+const run: any = async function (
+  context: any,
   req: HttpRequest
 ): Promise<void> {
   let response: AzureHttpResponse = {};
