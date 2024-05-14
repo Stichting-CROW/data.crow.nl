@@ -118,7 +118,7 @@ async function teamsWebhook(request: SafeRequest): Promise<AzureHttpResponse> {
 
   await fetch(payload.webhookTarget, {
     body: template,
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", method: "POST" },
   });
 
   return {
