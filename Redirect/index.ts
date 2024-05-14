@@ -95,6 +95,14 @@ async function teamsWebhook(request: SafeRequest): Promise<AzureHttpResponse> {
             "type": "AdaptiveCard",
             "version": "1.2",
             "speak": "Dataset ${account}/${dataset} was updated",
+            "actions": [
+              {
+                "type": "Action.OpenUrl",
+                "title": "View dataset",
+                "url": "https://datasets.crow.nl/${account}/${dataset}",
+                "role": "button"
+              }
+            ],
             "body": [
               {
                 "type": "TextBlock",
@@ -118,21 +126,21 @@ async function teamsWebhook(request: SafeRequest): Promise<AzureHttpResponse> {
     ]
  }`;
 
-  fetch(payload.webhookTarget, {
-    body: template,
-    headers: {
-      "Content-Type": "application/json",
-      "User-Agent": "data.crow.nl",
-    },
-    method: "POST",
-  });
+  // fetch(payload.webhookTarget, {
+  //   body: template,
+  //   headers: {
+  //     "Content-Type": "application/json",
+  //     "User-Agent": "data.crow.nl",
+  //   },
+  //   method: "POST",
+  // });
 
   return {
     status: 200,
     isRaw: true,
-    body: `Sent template to ${payload.webhookTarget}`,
+    body: `{ "message": "Sent template to ${payload.webhookTarget}" }`,
     headers: {
-      "content-type": "text/plain; charset=utf-8",
+      "content-type": "application/json",
     },
   };
 }
@@ -267,7 +275,9 @@ const run: AzureFunction = async function (
 
   const lang = languages(req.headers["accept-language"])[0]?.split("-")[0];
   const pathname = new URL(req.url).pathname;
-  const webhook = decodeURIComponent(req.query["webhooktarget"]);
+  const webhook =
+    decodeURIComponent(req.query["webhooktarget"]) ||
+    req.query["webhooktarget"];
 
   const contextData: SafeRequest = {
     urlPath: pathname,
