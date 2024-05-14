@@ -78,10 +78,12 @@ function substituteNamedVariables(
 async function teamsWebhook(request: SafeRequest): Promise<AzureHttpResponse> {
   const payload = {
     path: request.urlPath,
-    webhookTarget: decodeURIComponent(request.webhookTarget),
+    webhookTarget: request.webhookTarget,
     body: request.body,
   };
-  const [account, dataset] = ["a", "b"];
+  const account = "account";
+  const dataset = "dataset";
+
   const template = `{
     "type":"message",
     "attachments":[
@@ -116,7 +118,7 @@ async function teamsWebhook(request: SafeRequest): Promise<AzureHttpResponse> {
     ]
  }`;
 
-  await fetch(payload.webhookTarget, {
+  fetch(payload.webhookTarget, {
     body: template,
     headers: {
       "Content-Type": "application/json",
@@ -264,24 +266,22 @@ const run: AzureFunction = async function (
   let response: AzureHttpResponse = {};
 
   const lang = languages(req.headers["accept-language"])[0]?.split("-")[0];
-  const acpt = mediaTypes(req.headers["accept"]);
   const pathname = new URL(req.url).pathname;
-  const request: SafeRequest = {
+  const webhook = decodeURIComponent(req.query["webhooktarget"]);
+
+  const contextData: SafeRequest = {
     urlPath: pathname,
     urlEscaped: encodeURIComponent("https://data.crow.nl" + pathname),
     acceptLanguage1: lang,
-    acceptMediaTypes: acpt,
-    webhookTarget: req.query["webhooktarget"],
-    body: req.rawBody,
+    acceptMediaTypes: mediaTypes(req.headers["accept"]),
+    webhookTarget: webhook,
+    body: req.rawBody || req.body,
   };
 
-  console.info(JSON.stringify(acpt));
+  if (!!webhook && req.method == "POST")
+    response = await teamsWebhook(contextData);
+  else response = await redirectLocation(contextData);
 
-  if (!!request.webhookTarget) {
-    response = await teamsWebhook(request);
-  } else {
-    response = await redirectLocation(request);
-  }
   if (!!req.query["debug"]) {
     delete response.headers.location;
   }
