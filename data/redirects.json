@@ -25,7 +25,7 @@
     },
     {
       "path": "/imbor(-ref)?/(id|doc|def)/(.+)$",
-      "location": "https://docs.crow.nl/onto-verkenner/imbor/#/view?uri=$REQUEST_URI_ESCAPED",
+      "location": "https://imbor-viewer.apps.crow.nl/?selection=$REQUEST_URI_ESCAPED",
       "accept": ["text/html"]
     },
     {
