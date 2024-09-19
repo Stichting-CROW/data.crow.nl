@@ -287,7 +287,7 @@ const run: any = async function (
     acceptLanguage1: lang,
     acceptMediaTypes: mediaTypes(req.headers["accept"]),
     webhookTarget: webhook,
-    body: req.body,
+    body: await req.text(),
   };
 
   if (!!webhook && req.method == "POST")
