@@ -96,7 +96,7 @@
     },
     {
       "path": "/contractspecificaties/def/(.+)$",
-      "location": "https://bimloket.github.io/ld-viewer/contractspecificaties/#/view?uri=$REQUEST_URI_ESCAPED",
+      "location": "https://nl-digigo.github.io/ld-viewer/contractspecificaties/#/view?uri=$REQUEST_URI_ESCAPED",
       "accept": ["text/html"]
     },
     {
