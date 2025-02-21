@@ -106,6 +106,26 @@
     {
       "path": "(.*)$",
       "location": "https://api.datasets.crow.nl/redirect/$REQUEST_URI_ESCAPED"
+    },
+    {
+      "path": "/th/def/(.+)$",
+      "location": "https://docs.crow.nl/organisatiegegevens/themas/#$REQUEST_URI_ESCAPED",
+      "accept": ["text/html"]
+    },
+    {
+      "path": "/asp1/def/(.+)$",
+      "location": "https://docs.crow.nl/organisatiegegevens/requirement-levels//#$REQUEST_URI_ESCAPED",
+      "accept": ["text/html"]
+    },
+    {
+      "path": "/ps/def/(.+)$",
+      "location": "https://docs.crow.nl/organisatiegegevens/publicatiesoorten//#$REQUEST_URI_ESCAPED",
+      "accept": ["text/html"]
+    },
+    {
+      "path": "/fin/def/(.+)$",
+      "location": "https://docs.crow.nl/organisatiegegevens/financiers//#$REQUEST_URI_ESCAPED",
+      "accept": ["text/html"]
     }
   ]
 }
