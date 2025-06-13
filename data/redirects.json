@@ -29,72 +29,6 @@
       "accept": ["text/html"]
     },
     {
-      "path": "/imbor/id/domeinwaarden/",
-      "location": "http://hub.laces.tech/crow/imbor/2022/p/domeinwaarden",
-      "accept": [
-        "text/turtle",
-        "application/n-triples",
-        "application/n3",
-        "application/rdf+xml",
-        "application/ld+json"
-      ]
-    },
-    {
-      "path": "/imbor/def/",
-      "location": "http://hub.laces.tech/crow/imbor/2022/p/kern",
-      "accept": [
-        "text/turtle",
-        "application/n-triples",
-        "application/n3",
-        "application/rdf+xml",
-        "application/ld+json"
-      ]
-    },
-    {
-      "path": "/imbor/term/",
-      "location": "http://hub.laces.tech/crow/imbor/2022/p/vocabulaire",
-      "accept": [
-        "text/turtle",
-        "application/n-triples",
-        "application/n3",
-        "application/rdf+xml",
-        "application/ld+json"
-      ]
-    },
-    {
-      "path": "/imbor-ref/def/",
-      "location": "http://hub.laces.tech/crow/imbor/2022/p/informatief",
-      "accept": [
-        "text/turtle",
-        "application/n-triples",
-        "application/n3",
-        "application/rdf+xml",
-        "application/ld+json"
-      ]
-    },
-    {
-      "path": "/rest-api/def ",
-      "location": "http://hub.laces.tech/crow/imbor/2022/p/rest-api-linkset-imbor",
-      "accept": [
-        "text/turtle",
-        "application/n-triples",
-        "application/n3",
-        "application/rdf+xml",
-        "application/ld+json"
-      ]
-    },
-    {
-      "path": "/imbor/aanvullend-metamodel/",
-      "location": "http://hub.laces.tech/crow/imbor/2022/p/aanvullend-metamodel",
-      "accept": [
-        "text/turtle",
-        "application/n-triples",
-        "application/n3",
-        "application/rdf+xml",
-        "application/ld+json"
-      ]
-    },
-    {
       "path": "/contractspecificaties/def/(.+)$",
       "location": "https://nl-digigo.github.io/ld-viewer/contractspecificaties/#/view?uri=$REQUEST_URI_ESCAPED",
       "accept": ["text/html"]
@@ -102,10 +36,6 @@
     {
       "path": "/([a-zA-Z0-9-_]+?)/term/.+$",
       "location": "https://begrippen.crow.nl/$1/nl/page/?uri=$REQUEST_URI_ESCAPED"
-    },
-    {
-      "path": "(.*)$",
-      "location": "https://api.datasets.crow.nl/redirect/$REQUEST_URI_ESCAPED"
     },
     {
       "path": "/th/def/(.+)$",
@@ -126,6 +56,10 @@
       "path": "/fin/def/(.+)$",
       "location": "https://docs.crow.nl/organisatiegegevens/financiers//#$REQUEST_URI_ESCAPED",
       "accept": ["text/html"]
+    },
+    {
+      "path": "(.*)$",
+      "location": "https://api.datasets.crow.nl/redirect/$REQUEST_URI_ESCAPED"
     }
   ]
 }
