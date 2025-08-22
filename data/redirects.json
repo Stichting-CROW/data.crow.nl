@@ -58,6 +58,11 @@
       "accept": ["text/html"]
     },
     {
+      "path": "/kg/zn/id/Prd_(.+)$",
+      "location": "https://docs.crow.nl/organisatiegegevens/publicaties/Prd_$1",
+      "accept": ["text/html"]
+    },
+    {
       "path": "/kg/rl/def/Org_(.+)$",
       "location": "https://docs.crow.nl/organisatiegegevens/financiers/#$REQUEST_URI_ESCAPED",
       "accept": ["text/html"]
