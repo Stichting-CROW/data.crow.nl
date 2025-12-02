@@ -2,6 +2,10 @@
   "$schema": "./redirects-schema.json",
   "redirects": [
     {
+      "path": "/$",
+      "location": "https://datasets.crow.nl/"
+    },
+    {
       "path": "/file/id/(.+)$",
       "location": "https://asset.crowontwikkel.nl/id/$1"
     },
