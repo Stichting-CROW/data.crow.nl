@@ -2,9 +2,9 @@ import * as fs from "fs/promises";
 
 /** Generates a range from (start-end] */
 function* range(start: number, end: number): Generator<number> {
-  yield start;
-  if (start >= end) return;
-  yield* range(start + 1, end);
+  for (let i = start; i <= end; i++) {
+    yield i;
+  }
 }
 
 /** Corresponds with entries in data/redirects-schema.json */
@@ -33,9 +33,13 @@ function interpolatePathVariables(
 ): string {
   let result = location;
 
-  const matches = request.urlPath.match(targetPath);
-  for (const i of range(1, matches.length - 1))
-    result = result.replace(/\$\d/, matches[i]);
+  const targetRegex = new RegExp(targetPath);
+  const matches = request.urlPath.match(targetRegex);
+  if (matches) {
+    for (const i of range(1, matches.length - 1)) {
+      result = result.replace(/\$\d/, matches[i]);
+    }
+  }
 
   result = result.replace("$REQUEST_URI_ESCAPED", request.urlEscaped);
 
@@ -54,9 +58,8 @@ async function loadRedirects(): Promise<RedirectCandidate[]> {
     redirectsLoadPromise = fs
       .readFile("data/redirects.json", { encoding: "utf-8" })
       .then((fileContents) => {
-        const dataJSON: { redirects: RedirectCandidate[] } = JSON.parse(
-          fileContents,
-        );
+        const dataJSON: { redirects: RedirectCandidate[] } =
+          JSON.parse(fileContents);
         return dataJSON.redirects;
       });
   }
@@ -99,7 +102,6 @@ async function preferredTargets(
 export async function redirectLocation(
   request: RedirectContext,
 ): Promise<string | undefined> {
-  if (request.urlPath == "/undefined") return undefined;
   const targets = await preferredTargets(request);
 
   // This usually is the result of the last-resort redirect

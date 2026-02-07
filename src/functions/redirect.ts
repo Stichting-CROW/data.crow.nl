@@ -2,14 +2,26 @@ import { app, HttpRequest, HttpResponseInit } from "@azure/functions";
 import { mediaTypes } from "@hapi/accept";
 import { redirectLocation, type RedirectContext } from "./RedirectLogic";
 
-export const DEFAULT_TARGET = "https://datasets.crow.nl";
+export const DEFAULT_TARGET = "https://example.org";
+
+function escape(s) {
+  let lookup = {
+    "&": "&amp;",
+    '"': "&quot;",
+    "'": "&apos;",
+    "<": "&lt;",
+    ">": "&gt;",
+  };
+  return s.replace(/[&"'<>]/g, (c) => lookup[c]);
+}
 
 export async function redirect(
   request: HttpRequest,
 ): Promise<HttpResponseInit> {
   let headers = { Location: DEFAULT_TARGET };
 
-  const urlPath = "/" + request.params.restOfPath;
+  const restOfPath = request.params?.restOfPath;
+  const urlPath = restOfPath ? `/${restOfPath}` : "/";
   const acceptHeader = request.headers.get("Accept") ?? "*/*";
   const acceptMediaTypes = mediaTypes(acceptHeader);
 
@@ -25,11 +37,10 @@ export async function redirect(
   return {
     status: 307,
     body: `<title>Redirecting…</title>
-<p>Redirecting to <a href="${target}">${target}</a>...</p>`,
+<p>Redirecting to <a href="${escape(target)}">${escape(target)}</a>...</p>`,
     headers: {
       "Content-Type": "text/html; charset=utf-8",
       ...headers,
-      "Crow-Was-Default-Target": `${target == DEFAULT_TARGET}`,
     },
   };
 }
