@@ -92,7 +92,7 @@ async function preferredTargets(
     if (!pathMatches) return false;
 
     // If there are no conditions
-    if (!redirect.acceptRegexes) return true;
+    if (!redirect.acceptRegexes || redirect.acceptRegexes.length === 0) return true;
 
     // Only one filter needs to match one of the Accept headers using pre-compiled regexes
     return redirect.acceptRegexes.some((acceptRegex) => {
@@ -103,8 +103,8 @@ async function preferredTargets(
   });
 
   // Prefer those with an Accept filter
-  if (targets.some((redirect) => !!redirect.acceptRegexes))
-    targets = targets.filter((redirect) => !!redirect.acceptRegexes);
+  if (targets.some((redirect) => redirect.acceptRegexes && redirect.acceptRegexes.length > 0))
+    targets = targets.filter((redirect) => redirect.acceptRegexes && redirect.acceptRegexes.length > 0);
 
   return targets;
 }
