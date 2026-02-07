@@ -14,7 +14,7 @@ export async function redirect(
 
   const data: RedirectContext = {
     urlPath,
-    urlEscaped: encodeURIComponent(`https://data.crow.nl/${urlPath}`),
+    urlEscaped: encodeURIComponent("https://data.crow.nl" + urlPath),
     acceptMediaTypes,
   };
 
