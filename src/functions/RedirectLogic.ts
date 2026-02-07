@@ -43,7 +43,8 @@ function interpolatePathVariables(
   const matches = request.urlPath.match(targetRegex);
   if (matches) {
     for (const i of range(1, matches.length - 1)) {
-      result = result.replace(/\$\d/, matches[i]);
+      const placeholderRegex = new RegExp(`\\$${i}`, "g");
+      result = result.replace(placeholderRegex, matches[i] ?? "");
     }
   }
 
