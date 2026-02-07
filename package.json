@@ -1,5 +1,6 @@
 {
   "name": "data-crow-nl",
+  "private": true,
   "version": "1.0.0",
   "description": "Redirects requests at `data.crow.nl` to a designated resolver. Written for Azure Functions.",
   "homepage": "https://github.com/Stichting-CROW/data.crow.nl",
@@ -21,7 +22,7 @@
     "@hapi/accept": "^6.0.3"
   },
   "devDependencies": {
-    "@types/node": "18.x",
+    "@types/node": "20.x",
     "azure-functions-core-tools": "^4.x",
     "rimraf": "^5.0.0",
     "typescript": "^4.0.0"
