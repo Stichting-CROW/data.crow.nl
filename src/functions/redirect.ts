@@ -10,7 +10,8 @@ export async function redirect(
   let headers = { Location: DEFAULT_TARGET };
 
   const urlPath = "/" + request.params.restOfPath;
-  const acceptMediaTypes = mediaTypes(request.headers.get("Accept"));
+  const acceptHeader = request.headers.get("Accept") ?? "*/*";
+  const acceptMediaTypes = mediaTypes(acceptHeader);
 
   const data: RedirectContext = {
     urlPath,
