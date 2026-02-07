@@ -98,7 +98,7 @@ async function preferredTargets(
 /** Find redirection target */
 export async function redirectLocation(
   request: RedirectContext,
-): Promise<string> {
+): Promise<string | undefined> {
   if (request.urlPath == "/undefined") return undefined;
   const targets = await preferredTargets(request);
 
