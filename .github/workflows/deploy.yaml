@@ -5,32 +5,24 @@ on:
     branches:
       - main
 
-# CONFIGURATION
-# For help, go to https://github.com/Azure/Actions
-#
-# 1. Set up the following secrets in your repository:
-#   AZURE_FUNCTIONAPP_PUBLISH_PROFILE
-#
-# 2. Change these variables for your configuration:
-
 env:
   AZURE_FUNCTIONAPP_NAME: "data-crow-nl" # set this to your application's name
   AZURE_FUNCTIONAPP_PACKAGE_PATH: "." # set this to the path to your web app project, defaults to the repository root
-  NODE_VERSION: "20.x" # set this to the node version to use (supports 8.x, 10.x, 12.x)
+  NODE_VERSION: "22.x" # set this to the node version to use
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout GitHub Action"
-        uses: actions/checkout@main
+        uses: actions/checkout@v6
 
       - name: Setup Node ${{ env.NODE_VERSION }} Environment
-        uses: actions/setup-node@v4.0.3
+        uses: actions/setup-node@v6.2.0
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: "Resolve Project Dependencies Using Npm"
+      - name: "Resolve project dependencies"
         shell: bash
         run: |
           pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
