@@ -42,16 +42,37 @@ function interpolatePathVariables(
   return result;
 }
 
+let redirectsCache: RedirectCandidate[] | null = null;
+let redirectsLoadPromise: Promise<RedirectCandidate[]> | null = null;
+
+async function loadRedirects(): Promise<RedirectCandidate[]> {
+  if (redirectsCache) {
+    return redirectsCache;
+  }
+
+  if (!redirectsLoadPromise) {
+    redirectsLoadPromise = fs
+      .readFile("data/redirects.json", { encoding: "utf-8" })
+      .then((fileContents) => {
+        const dataJSON: { redirects: RedirectCandidate[] } = JSON.parse(
+          fileContents,
+        );
+        return dataJSON.redirects;
+      });
+  }
+
+  redirectsCache = await redirectsLoadPromise;
+  return redirectsCache;
+}
+
 /** Gather matching targets. */
 async function preferredTargets(
   request: RedirectContext,
 ): Promise<RedirectCandidate[]> {
-  const dataJSON: { redirects: RedirectCandidate[] } = JSON.parse(
-    await fs.readFile("data/redirects.json", { encoding: "utf-8" }),
-  );
+  const redirects = await loadRedirects();
 
   const path = request.urlPath;
-  let targets = dataJSON.redirects.filter((redirect) => {
+  let targets = redirects.filter((redirect) => {
     // Check url.pathname with redirect.path
     const pathMatches = new RegExp(redirect.path).test(path);
     if (!pathMatches) return false;
