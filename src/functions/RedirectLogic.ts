@@ -14,6 +14,12 @@ interface RedirectCandidate {
   accept?: string[];
 }
 
+/** RedirectCandidate with pre-compiled RegExp objects for performance */
+interface CompiledRedirect extends RedirectCandidate {
+  pathRegex: RegExp;
+  acceptRegexes?: RegExp[];
+}
+
 /** Request parameters for underlying functions. */
 export interface RedirectContext {
   urlPath: string;
@@ -46,10 +52,10 @@ function interpolatePathVariables(
   return result;
 }
 
-let redirectsCache: RedirectCandidate[] | null = null;
-let redirectsLoadPromise: Promise<RedirectCandidate[]> | null = null;
+let redirectsCache: CompiledRedirect[] | null = null;
+let redirectsLoadPromise: Promise<CompiledRedirect[]> | null = null;
 
-async function loadRedirects(): Promise<RedirectCandidate[]> {
+async function loadRedirects(): Promise<CompiledRedirect[]> {
   if (redirectsCache) {
     return redirectsCache;
   }
@@ -60,7 +66,12 @@ async function loadRedirects(): Promise<RedirectCandidate[]> {
       .then((fileContents) => {
         const dataJSON: { redirects: RedirectCandidate[] } =
           JSON.parse(fileContents);
-        return dataJSON.redirects;
+        // Compile regex patterns once during load
+        return dataJSON.redirects.map((redirect) => ({
+          ...redirect,
+          pathRegex: new RegExp(redirect.path),
+          acceptRegexes: redirect.accept?.map((pattern) => new RegExp(pattern)),
+        }));
       });
   }
 
@@ -71,29 +82,29 @@ async function loadRedirects(): Promise<RedirectCandidate[]> {
 /** Gather matching targets. */
 async function preferredTargets(
   request: RedirectContext,
-): Promise<RedirectCandidate[]> {
+): Promise<CompiledRedirect[]> {
   const redirects = await loadRedirects();
 
   const path = request.urlPath;
   let targets = redirects.filter((redirect) => {
-    // Check url.pathname with redirect.path
-    const pathMatches = new RegExp(redirect.path).test(path);
+    // Check url.pathname with redirect.path using pre-compiled regex
+    const pathMatches = redirect.pathRegex.test(path);
     if (!pathMatches) return false;
 
     // If there are no conditions
-    if (!redirect.accept) return true;
+    if (!redirect.acceptRegexes) return true;
 
-    // Only one filter needs to match one of the Accept headers
-    return redirect.accept.some((condition) => {
+    // Only one filter needs to match one of the Accept headers using pre-compiled regexes
+    return redirect.acceptRegexes.some((acceptRegex) => {
       return request.acceptMediaTypes.some((header) => {
-        return new RegExp(condition).test(header);
+        return acceptRegex.test(header);
       });
     });
   });
 
   // Prefer those with an Accept filter
-  if (targets.some((redirect) => !!redirect.accept))
-    targets = targets.filter((redirect) => !!redirect.accept);
+  if (targets.some((redirect) => !!redirect.acceptRegexes))
+    targets = targets.filter((redirect) => !!redirect.acceptRegexes);
 
   return targets;
 }
