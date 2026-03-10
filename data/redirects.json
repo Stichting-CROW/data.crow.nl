@@ -2,81 +2,81 @@
   "$schema": "./redirects-schema.json",
   "redirects": [
     {
-      "path": "/$",
+      "path": "^/$",
       "location": "https://datasets.crow.nl/"
     },
     {
-      "path": "/file/id/(.+)$",
+      "path": "^/file/id/(.+)$",
       "location": "https://asset.crowontwikkel.nl/id/$1"
     },
     {
-      "path": "/cdoc/def/(.+)$",
+      "path": "^/cdoc/def/(.+)$",
       "location": "https://docs.crow.nl/Contracteisen/DocumentSchema_v3.2.3.ttl",
       "accept": ["text/turtle"]
     },
     {
-      "path": "/cspec/def/(.+)$",
+      "path": "^/cspec/def/(.+)$",
       "location": "https://docs.crow.nl/Contracteisen/SpecificatieSchema_v3.2.3.ttl",
       "accept": ["text/turtle"]
     },
     {
-      "path": "/cdoc/def/(.+)$",
+      "path": "^/cdoc/def/(.+)$",
       "location": "https://docs.crow.nl/Contracteisen/#$1"
     },
     {
-      "path": "/cspec/def/(.+)$",
+      "path": "^/cspec/def/(.+)$",
       "location": "https://docs.crow.nl/Contracteisen/#$1"
     },
     {
-      "path": "/imbor(-ref)?/(id|doc|def)/(.+)$",
+      "path": "^/imbor(-ref)?/(id|doc|def)/(.+)$",
       "location": "https://imbor-viewer.apps.crow.nl/?selection=$REQUEST_URI_ESCAPED",
       "accept": ["text/html"]
     },
     {
-      "path": "/contractspecificaties/def/(.+)$",
+      "path": "^/contractspecificaties/def/(.+)$",
       "location": "https://nl-digigo.github.io/ld-viewer/contractspecificaties/#/view?uri=$REQUEST_URI_ESCAPED",
       "accept": ["text/html"]
     },
     {
-      "path": "/ikob/term/(.+)$",
+      "path": "^/ikob/term/(.+)$",
       "location": "https://begrippen.crow.nl/IKOB/nl/page/?uri=$REQUEST_URI_ESCAPED"
     },
     {
-      "path": "/([a-zA-Z0-9-_]+?)/term/(.+)$",
+      "path": "^/([a-zA-Z0-9-_]+?)/term/(.+)$",
       "location": "https://begrippen.crow.nl/$1/nl/page/?uri=$REQUEST_URI_ESCAPED"
     },
     {
-      "path": "/kg/rl/def/Thm_(.+)$",
+      "path": "^/kg/rl/def/Thm_(.+)$",
       "location": "https://docs.crow.nl/organisatiegegevens/themas/#$REQUEST_URI_ESCAPED",
       "accept": ["text/html"]
     },
     {
-      "path": "/kg/rl/def/STh_(.+)$",
+      "path": "^/kg/rl/def/STh_(.+)$",
       "location": "https://docs.crow.nl/organisatiegegevens/strat-themas/#$REQUEST_URI_ESCAPED",
       "accept": ["text/html"]
     },
     {
-      "path": "/kg/rl/def/Hrd_(.+)$",
+      "path": "^/kg/rl/def/Hrd_(.+)$",
       "location": "https://docs.crow.nl/organisatiegegevens/requirement-levels/#$REQUEST_URI_ESCAPED",
       "accept": ["text/html"]
     },
     {
-      "path": "/kg/rl/def/Pst_(.+)$",
+      "path": "^/kg/rl/def/Pst_(.+)$",
       "location": "https://docs.crow.nl/organisatiegegevens/publicatiesoorten/#$REQUEST_URI_ESCAPED",
       "accept": ["text/html"]
     },
     {
-      "path": "/kg/zn/id/Prd_(.+)$",
+      "path": "^/kg/zn/id/Prd_(.+)$",
       "location": "https://docs.crow.nl/organisatiegegevens/publicaties/Prd_$1",
       "accept": ["text/html"]
     },
     {
-      "path": "/kg/rl/def/Org_(.+)$",
+      "path": "^/kg/rl/def/Org_(.+)$",
       "location": "https://docs.crow.nl/organisatiegegevens/financiers/#$REQUEST_URI_ESCAPED",
       "accept": ["text/html"]
     },
     {
-      "path": "(.*)$",
+      "path": "^/(.*)$",
       "location": "https://api.datasets.crow.nl/redirect/$REQUEST_URI_ESCAPED"
     }
   ]
