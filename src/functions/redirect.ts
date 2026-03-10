@@ -18,31 +18,42 @@ function escape(s) {
 export async function redirect(
   request: HttpRequest,
 ): Promise<HttpResponseInit> {
-  let headers = { Location: DEFAULT_TARGET };
+  try {
+    let headers = { Location: DEFAULT_TARGET };
 
-  const restOfPath = request.params?.restOfPath;
-  const urlPath = restOfPath ? `/${restOfPath.replace(/^\/+/, "")}` : "/";
-  const acceptHeader = request.headers.get("Accept") ?? "*/*";
-  const acceptMediaTypes = mediaTypes(acceptHeader);
+    const restOfPath = request.params?.restOfPath;
+    const urlPath = restOfPath ? `/${restOfPath.replace(/^\/+/, "")}` : "/";
+    const acceptHeader = request.headers.get("Accept") ?? "*/*";
+    const acceptMediaTypes = mediaTypes(acceptHeader);
 
-  const data: RedirectContext = {
-    urlPath,
-    urlEscaped: encodeURIComponent("https://data.crow.nl" + urlPath),
-    acceptMediaTypes,
-  };
+    const data: RedirectContext = {
+      urlPath,
+      urlEscaped: encodeURIComponent("https://data.crow.nl" + urlPath),
+      acceptMediaTypes,
+    };
 
-  const target = (headers.Location =
-    (await redirectLocation(data)) ?? DEFAULT_TARGET);
+    const target = (headers.Location =
+      (await redirectLocation(data)) ?? DEFAULT_TARGET);
 
-  return {
-    status: 307,
-    body: `<title>Redirecting…</title>
+    return {
+      status: 307,
+      body: `<title>Redirecting…</title>
 <p>Redirecting to <a href="${escape(target)}">${escape(target)}</a>...</p>`,
-    headers: {
-      "Content-Type": "text/html; charset=utf-8",
-      ...headers,
-    },
-  };
+      headers: {
+        "Content-Type": "text/html; charset=utf-8",
+        ...headers,
+      },
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      status: 500,
+      body: `<h1>Internal Server Error</h1><p>${error?.message}</p>`,
+      headers: {
+        "Content-Type": "text/html; charset=utf-8",
+      },
+    };
+  }
 }
 
 app.http("redirect", {

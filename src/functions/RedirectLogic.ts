@@ -1,4 +1,5 @@
 import * as fs from "fs/promises";
+import * as path from "path";
 
 /** Generates a range from (start-end] */
 function* range(start: number, end: number): Generator<number> {
@@ -62,8 +63,11 @@ async function loadRedirects(): Promise<CompiledRedirect[]> {
   }
 
   if (!redirectsLoadPromise) {
+    // Navigate up from dist/src/functions/ to the project root
+    const dataPath = path.join(__dirname, "../../..", "data/redirects.json");
+
     redirectsLoadPromise = fs
-      .readFile("data/redirects.json", { encoding: "utf-8" })
+      .readFile(dataPath, { encoding: "utf-8" })
       .then((fileContents) => {
         const dataJSON: { redirects: RedirectCandidate[] } =
           JSON.parse(fileContents);
