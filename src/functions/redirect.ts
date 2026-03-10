@@ -21,7 +21,7 @@ export async function redirect(
   let headers = { Location: DEFAULT_TARGET };
 
   const restOfPath = request.params?.restOfPath;
-  const urlPath = restOfPath ? `/${restOfPath}` : "/";
+  const urlPath = restOfPath ? `/${restOfPath.replace(/^\/+/, "")}` : "/";
   const acceptHeader = request.headers.get("Accept") ?? "*/*";
   const acceptMediaTypes = mediaTypes(acceptHeader);
 
