@@ -2,7 +2,7 @@
   "$schema": "./redirects-schema.json",
   "redirects": [
     {
-      "path": "^$",
+      "path": "^/$",
       "location": "https://datasets.crow.nl/"
     },
     {
