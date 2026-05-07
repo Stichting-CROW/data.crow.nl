@@ -33,7 +33,7 @@
       "accept": ["text/html"]
     },
     {
-      "path": "^/imv(-ref)?/(id|doc|def)/(.+)$",
+      "path": "^/imv(-ref|-standaard-platen)?/(id|doc|def)/(.+)$",
       "location": "https://imv-viewer.apps.crow.nl/?selection=$REQUEST_URI_ESCAPED",
       "accept": ["text/html"]
     },
