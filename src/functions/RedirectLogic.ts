@@ -1,12 +1,4 @@
-import * as fs from "fs/promises";
-import * as path from "path";
-
-/** Generates a range from (start-end] */
-function* range(start: number, end: number): Generator<number> {
-  for (let i = start; i <= end; i++) {
-    yield i;
-  }
-}
+import redirectsData from "../../data/redirects.json";
 
 /** Corresponds with entries in data/redirects-schema.json */
 interface RedirectCandidate {
@@ -15,10 +7,18 @@ interface RedirectCandidate {
   accept?: string[];
 }
 
-/** RedirectCandidate with pre-compiled RegExp objects for performance */
+/** A segment of a pre-compiled location template:
+ * literal text, a regex capture group ($1..$9), or the escaped request URI. */
+type LocationSegment =
+  | { kind: "literal"; value: string }
+  | { kind: "group"; index: number }
+  | { kind: "requestUriEscaped" };
+
+/** RedirectCandidate with pre-compiled regexes and location template for performance */
 interface CompiledRedirect extends RedirectCandidate {
   pathRegex: RegExp;
   acceptRegexes?: RegExp[];
+  locationSegments: LocationSegment[];
 }
 
 /** Request parameters for underlying functions. */
@@ -28,106 +28,114 @@ export interface RedirectContext {
   acceptMediaTypes: string[];
 }
 
-/** Substitute redirection location variables
- *
- * - $1..$9
- * - $REQUEST_URI_ESCAPED URL-encoded request URL
- * */
-function interpolatePathVariables(
-  location: string,
-  request: RedirectContext,
-  targetPath: string,
-): string {
-  let result = location;
+/** Pre-compile a location template into segments, so no regexes are
+ * constructed per request. Supports $1..$9 and $REQUEST_URI_ESCAPED. */
+function compileLocation(location: string): LocationSegment[] {
+  const segments: LocationSegment[] = [];
+  const pattern = /\$(\d)|\$REQUEST_URI_ESCAPED/g;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
 
-  const targetRegex = new RegExp(targetPath);
-  const matches = request.urlPath.match(targetRegex);
-  if (matches) {
-    for (const i of range(1, matches.length - 1)) {
-      const placeholderRegex = new RegExp(`\\$${i}`, "g");
-      result = result.replace(placeholderRegex, matches[i] ?? "");
+  while ((match = pattern.exec(location)) !== null) {
+    if (match.index > lastIndex) {
+      segments.push({
+        kind: "literal",
+        value: location.slice(lastIndex, match.index),
+      });
     }
+    if (match[1] !== undefined) {
+      segments.push({ kind: "group", index: Number(match[1]) });
+    } else {
+      segments.push({ kind: "requestUriEscaped" });
+    }
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastIndex < location.length) {
+    segments.push({ kind: "literal", value: location.slice(lastIndex) });
   }
 
-  result = result.replace("$REQUEST_URI_ESCAPED", request.urlEscaped);
+  return segments;
+}
 
+/** Substitute redirection location variables using a pre-compiled template
+ * and the match produced while filtering (no per-request RegExp construction). */
+function interpolateLocation(
+  redirect: CompiledRedirect,
+  request: RedirectContext,
+  matches: RegExpExecArray | null,
+): string {
+  let result = "";
+  for (const segment of redirect.locationSegments) {
+    switch (segment.kind) {
+      case "literal":
+        result += segment.value;
+        break;
+      case "group":
+        result += matches?.[segment.index] ?? "";
+        break;
+      case "requestUriEscaped":
+        result += request.urlEscaped;
+        break;
+    }
+  }
   return result;
 }
 
-let redirectsCache: CompiledRedirect[] | null = null;
-let redirectsLoadPromise: Promise<CompiledRedirect[]> | null = null;
+/** Compiled redirects are built once at module load: the JSON is bundled
+ * into the deployment package, so there is no disk I/O or async loading. */
+const compiledRedirects: CompiledRedirect[] = (
+  redirectsData as { redirects: RedirectCandidate[] }
+).redirects.map((redirect) => ({
+  ...redirect,
+  pathRegex: new RegExp(redirect.path),
+  acceptRegexes: redirect.accept?.map((pattern) => new RegExp(pattern)),
+  locationSegments: compileLocation(redirect.location),
+}));
 
-async function loadRedirects(): Promise<CompiledRedirect[]> {
-  if (redirectsCache) {
-    return redirectsCache;
-  }
-
-  if (!redirectsLoadPromise) {
-    // Navigate up from dist/src/functions/ to the project root
-    const dataPath = path.join(__dirname, "../../..", "data/redirects.json");
-
-    redirectsLoadPromise = fs
-      .readFile(dataPath, { encoding: "utf-8" })
-      .then((fileContents) => {
-        const dataJSON: { redirects: RedirectCandidate[] } =
-          JSON.parse(fileContents);
-        // Compile regex patterns once during load
-        return dataJSON.redirects.map((redirect) => ({
-          ...redirect,
-          pathRegex: new RegExp(redirect.path),
-          acceptRegexes: redirect.accept?.map((pattern) => new RegExp(pattern)),
-        }));
-      });
-  }
-
-  redirectsCache = await redirectsLoadPromise;
-  return redirectsCache;
-}
-
-/** Gather matching targets. */
-async function preferredTargets(
+/** Gather matching targets together with their path matches. */
+function preferredTargets(
   request: RedirectContext,
-): Promise<CompiledRedirect[]> {
-  const redirects = await loadRedirects();
-
+): { redirect: CompiledRedirect; matches: RegExpExecArray | null }[] {
   const path = request.urlPath;
-  let targets = redirects.filter((redirect) => {
-    // Check url.pathname with redirect.path using pre-compiled regex
-    const pathMatches = redirect.pathRegex.test(path);
-    if (!pathMatches) return false;
+  let targets = compiledRedirects
+    .map((redirect) => ({
+      redirect,
+      matches: redirect.pathRegex.exec(path),
+    }))
+    .filter(({ redirect, matches }) => {
+      // Check url.pathname with redirect.path using pre-compiled regex
+      if (!matches) return false;
 
-    // If there are no conditions
-    if (!redirect.acceptRegexes) return true;
+      // If there are no conditions
+      if (!redirect.acceptRegexes) return true;
 
-    // Only one filter needs to match one of the Accept headers using pre-compiled regexes
-    return redirect.acceptRegexes.some((acceptRegex) => {
-      return request.acceptMediaTypes.some((header) => {
-        return acceptRegex.test(header);
+      // Only one filter needs to match one of the Accept headers using pre-compiled regexes
+      return redirect.acceptRegexes.some((acceptRegex) => {
+        return request.acceptMediaTypes.some((header) => {
+          return acceptRegex.test(header);
+        });
       });
     });
-  });
 
   // Prefer those with an Accept filter
-  if (targets.some((redirect) => !!redirect.acceptRegexes))
-    targets = targets.filter((redirect) => !!redirect.acceptRegexes);
+  if (targets.some(({ redirect }) => !!redirect.acceptRegexes))
+    targets = targets.filter(({ redirect }) => !!redirect.acceptRegexes);
 
   return targets;
 }
 
 /** Find redirection target */
-export async function redirectLocation(
-  request: RedirectContext,
-): Promise<string | undefined> {
-  const targets = await preferredTargets(request);
+export function redirectLocation(request: RedirectContext): string | undefined {
+  const targets = preferredTargets(request);
 
   // This usually is the result of the last-resort redirect
   if (targets.length !== 1)
     console.info(
-      `Found ${targets.length} matches for "${request.urlPath}": ${targets.map((t) => t.location)}`,
+      `Found ${targets.length} matches for "${request.urlPath}": ${targets.map((t) => t.redirect.location)}`,
     );
 
   if (targets.length === 0) return undefined;
 
   const target = targets[0];
-  return interpolatePathVariables(target.location, request, target.path);
+  return interpolateLocation(target.redirect, request, target.matches);
 }
